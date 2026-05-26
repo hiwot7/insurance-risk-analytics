@@ -1,0 +1,119 @@
+# Data tracking
+data/*
+!data/.gitignore
+
+# Python caching
+__pycache__/
+*.pyc
+
+# IDEs and Jupyter notebooks
+.ipynb_checkpoints/
+.vscode/
+.idea/
+.DS_Store
+```[cite: 1]
+
+---
+
+## 🛠 Step 2: Build the Modular Data Loader (`src/data_loader.py`)
+
+To follow the modular coding standards required for your deliverables, let's take the initialization concepts from the demo and build a clean data loader[cite: 1]. Open your `src/data_loader.py` file and add this Python code:
+
+```python
+import pandas as pd
+import os
+
+def load_insurance_data(file_path="data/insurance_data.csv"):
+    """
+    Safely loads the AlphaCare Insurance Solutions historical dataset.
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(
+            f"Dataset not found at {file_path}. Please place your unzipped "
+            "CSV file from 'Insurance Analytics.zip' into the data/ folder."
+        )
+    
+    df = pd.read_csv(file_path)
+    return df
+```[cite: 1]
+
+---
+
+## 📊 Step 3: Set up Your Official Notebook (`notebooks/01_eda.ipynb`)
+
+Now, open a fresh Jupyter Notebook (or clear the demo notebook cells) inside your `notebooks/` directory and save it as `01_eda.ipynb`[cite: 1]. 
+
+You can adapt the custom visualization theme and layout structure from the demo, but swap out the calculations to match the exact requirements of your project brief[cite: 1]. Here is the code structure you should place in your initial notebook cells:
+
+### Cell 1: Environment & Theme Setup
+```python
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import sys
+import os
+
+# Ensure our local src directory can be imported
+sys.path.append(os.path.abspath(os.path.join('..')))
+from src.data_loader import load_insurance_data
+
+# Set custom visual styling
+sns.set_theme(style="whitegrid")
+plt.rcParams['figure.figsize'] = (10, 6)
+plt.rcParams['axes.spines.top'] = False
+plt.rcParams['axes.spines.right'] = False
+
+# AlphaCare Corporate Palette
+PALETTE = {
+    'primary': '#1d3557',    # Navy
+    'secondary': '#457b9d',  # Slate Blue
+    'accent': '#e63946',     # Red
+    'light': '#f1faee'       # Soft Off-White
+}
+sns.set_palette([PALETTE['primary'], PALETTE['secondary'], PALETTE['accent']])
+print("AlphaCare EDA Environment Configured.")
+```[cite: 1]
+
+### Cell 2: Load Data & Data Quality Assessment
+```python
+# Load the actual assignment dataset
+df = load_insurance_data()
+
+# Data Quality Checks
+print("=== Dataset Information ===")
+print(df.info())
+
+print("\n=== Missing Values Assessment ===")
+print(df.isnull().sum())
+```[cite: 1]
+
+### Cell 3: Core Calculations (Loss Ratio & Margin)
+Your challenge document strictly mandates calculating these two derived metrics to anchor your portfolio profitability analysis[cite: 1]:
+*   **Loss Ratio** = $TotalClaims / TotalPremium$[cite: 1]
+*   **Margin** = $TotalPremium - TotalClaims$[cite: 1]
+
+```python
+# 1. Total Metrics
+total_premiums = df['TotalPremium'].sum()
+total_claims = df['TotalClaims'].sum()
+
+overall_loss_ratio = total_claims / total_premiums
+overall_margin = total_premiums - total_claims
+
+print(f"Overall Portfolio Loss Ratio: {overall_loss_ratio:.2%}")
+print(f"Total Portfolio Profit Margin Contribution: R {overall_margin:,.2f}")
+
+# 2. Performance Breakdown by Demographics & Geography
+print("\n=== Loss Ratio by Province ===")
+prov_analysis = df.groupby('Province').agg(
+    Total_Premium=('TotalPremium', 'sum'),
+    Total_Claims=('TotalClaims', 'sum')
+)
+prov_analysis['Loss_Ratio'] = prov_analysis['Total_Claims'] / prov_analysis['Total_Premium']
+print(prov_analysis[['Loss_Ratio']].sort_values(by='Loss_Ratio', ascending=False))
+```[cite: 1]
+
+---
+
+
